@@ -1,0 +1,17 @@
+{
+  "name": "chat-app-server",
+  "version": "1.0.0",
+  "description": "chat-app websocket server",
+  "main": "app.js",
+  "author": "bashow",
+  "license": "MIT",
+  "scripts": {
+    "start": "npx tsc && node dist/app.js"
+  },
+  "dependencies": {
+    "@types/node": "12",
+    "@types/socket.io": "^2.1.11",
+    "socket.io": "^2.3.0",
+    "typescript": "^3.9.7"
+  }
+}

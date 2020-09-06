@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>websocket-chat</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- C01. Socket.IOクライアントライブラリの読込み -->
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>WebSocket-Chat</h1>
+      <form class="form-inline">
+        <div class="form-group">
+          <label class="nameLabel" for="roomName">チャットルーム名前：</label>
+          <input type="text" class="form-control" id="roomName" value="チャットルーム名" />
+
+          <label class="nameLabel" for="name">名前：</label>
+          <input type="text" class="form-control" id="name" value="ユーザー名" />
+
+          <label class="nameLabel" for="message">メッセージ：</label>
+          <input type="text" class="form-control" id="message" />
+        </div>
+        <button type="submit" class="btn btn-primary" id="sendButton">
+          入室
+        </button>
+      </form>
+      <div id="chatLogs"></div>
+    </div>
+
+    <script type="text/javascript">
+      const socket = io.connect("http://localhost:3333"); // C02. ソケットへの接続
+      let isEnter = false;
+      let roomId = '';
+
+      // チャットルーム作成時のイベント取得
+      socket.on("create-room", function (data) {
+        roomId = data.roomId;
+        
+        const roomName = data.roomName;
+        
+        $("#chatLogs").append(`<div>チャットルーム「${roomName}（${roomId}）」が作成されました</div>`);
+      });
+
+      // 会話時のイベント取得
+      socket.on("conversation", function (data) {
+        const roomId = data.roomId;
+        const message = data.message;
+        $("#chatLogs").append(`<div>${message}</div>`);
+      });
+
+      // ルームリストのイベント取得
+      socket.on("rooms-list", function (data) {
+        console.log(data);
+      });
+
+      $("form").submit(function (e) {
+        var roomName = $("#roomName").val();
+        var name = $("#name").val();
+        var message = $("#message").val();
+
+        if (isEnter) {
+          console.log(`会話: ${message}`);
+
+          const data = {
+            roomId: roomId,
+            message: message
+          };
+          socket.emit('conversation', data);
+        } else {
+          console.log(`チャットルーム作成`);
+
+          const data = {
+            roomName: name
+          };
+          socket.emit('create-room', data);
+
+          isEnter = true;
+        }
+        e.preventDefault();
+      });
+
+    </script>
+  </body>
+</html>
